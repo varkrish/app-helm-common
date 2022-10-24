@@ -1,0 +1,27 @@
+{{- if (eq .Values.is.enabled true) }}
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: {{ include "app.fullname" . }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+  creationTimestamp: null
+spec:
+  lookupPolicy:
+    local: false
+{{- if (eq .Values.istag.enabled true) }}
+  tags:
+    - annotations:
+        openshift.io/imported-from: {{ .Values.image.repository }}/{{ .Values.image.name }}
+      from:
+        kind: DockerImage
+        {{- if .Values.image.namespace }}
+        name: {{ .Values.image.repository }}/{{ .Values.image.namespace }}/{{ .Values.image.name }}:{{ .Values.image.tag }}
+        {{- else }}
+        name: {{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}
+        {{- end }}
+      importPolicy: {}
+      name: {{ .Values.image.tag }}
+{{- end }}
+{{- end }}

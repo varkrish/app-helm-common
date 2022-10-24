@@ -1,0 +1,32 @@
+{{- define "common.route" }}
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "app.fullname" . }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+  annotations:
+    
+spec:
+  {{- if (.Values.route).hostname}}
+  {{- if not .Values.route.hostname "" }}
+  host: {{ .Values.route.hostname }}
+  {{- end }}
+  {{- end }}
+  port:
+    {{- if (.Values.service).ports }}
+    targetPort: tcp-{{index .Values.service.ports 0 }}
+    {{- else}}
+    targetPort: tcp-8080
+    {{- end}}
+  to:
+    kind: Service
+    name: {{ include "app.fullname" . }}
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  wildcardPolicy: None
+
+{{- end}}

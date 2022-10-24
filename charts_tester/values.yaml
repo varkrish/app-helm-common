@@ -1,0 +1,45 @@
+# Default values for app-config.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+ 
+#replicaCount: 1
+image:
+  repository: image-registry.openshift-image-registry.svc:5000
+  namespace: cnd
+  name: calc-fe-team1
+  tag: latest2
+  pullPolicy: IfNotPresent
+ 
+## controller types to be deployed
+## - deployment
+## - deploymentConfig
+## - daemonset
+## - statefulset
+## - job
+## - cronjob
+controller:
+  enabled: true
+  type: deployment
+ 
+## number of pods
+replicas:
+  min: 1
+  max: 6
+ 
+resources:
+  limits:
+    cpu: '500m'
+    memory: 512Mi
+  requests:
+    cpu: '500m'
+    memory: 512Mi
+
+services:
+  configmaps:
+    - configmap1
+  secrets:
+    - secret1
+
+env:
+  - name: PORT
+    value: 8080

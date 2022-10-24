@@ -1,0 +1,115 @@
+# Default values for app-config.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+image:
+  repository: image-registry.openshift-image-registry.svc:5000
+  namespace: cnd
+  name: springbootapp
+  tag: latest
+  pullPolicy: IfNotPresent
+
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+#  ports: ["8100"]
+
+resources: 
+  limits:
+    cpu: '500m'
+    memory: 512Mi
+  requests:
+    cpu: '500m'
+    memory: 512Mi
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+#autoscaling:
+#  enabled: false
+#  minReplicas: 1
+#  maxReplicas: 100
+#  targetCPUUtilizationPercentage: 80
+#  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+controller:
+  enabled: true
+  type: deployment
+# OpenShift objects
+route:
+  enabled: true
+  hostname: ""
+# if false use a kube deployment instead
+deploymentConfig: false
+replicas:
+  min: 2
+  max: 15
+#image_repository: nexus
+#image_name: sprintbootapp
+#image_namespace: appnamespace
+#image_version: 1.0.0
+# enable image stream in chart
+is:
+  enabled: false
+# use the image specified above as tag (else tag overridden in pipeline say)
+istag:
+  enabled: true
+
+services:  #configmaps and secrets to be loaded as envFrom
+  configmaps: # mount it as
+    - springappconfig
+  secrets:
+    - secret1
+  
+env:
+   - name : SPRING_PROFILE
+     value: "dev"
+   - name: server_port
+     value: 8080 
+
+hpa:
+  enabled: true
+  maxReplicas: 5
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 80
+
+pdb: 
+  enabled: true
+  minavailable: 2
+
+

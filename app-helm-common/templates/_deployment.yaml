@@ -1,0 +1,36 @@
+{{/*
+This template serves as the blueprint for the Deployment objects that are created
+within the common library.
+*/}}
+{{- define "common.deployment" }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "app.fullname" . }}
+  annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"{{ include "app.fullname" . }}:{{ .Values.image.version }}"},"fieldPath":"spec.template.spec.containers[?(@.name==\"app\")].image"}]'
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  progressDeadlineSeconds: 600
+  replicas: {{ .Values.replicas.min }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      {{- include "app.selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        {{- include "metrics.prometheus" . | nindent 8 }}
+        rollme: {{ randAlphaNum 5 | quote }}
+      labels:
+        {{- include "app.selectorLabels" . | nindent 8 }}
+    spec:
+      {{ include "base.spec" . }}
+{{- end }}

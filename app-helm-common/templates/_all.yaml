@@ -1,0 +1,36 @@
+{{/*
+Main entrypoint for the common library chart. 
+It will render all underlying templates for application based on the provided values.
+App networking i.e. creation of services and routes will not be part of this base lib in-order
+to support advanced deployment strategies
+*/}}
+
+{{- define "common.appSpec" -}}
+  {{- if .Values.controller.enabled }}
+    {{- if or (eq .Values.controller.type "deployment") }}
+      {{- include "common.deployment" . | nindent 0 }}
+    {{ else if eq .Values.controller.type "statefulset"  }}
+      {{- include "common.statefulset" . | nindent 0 }}
+    {{ else if eq .Values.controller.type "job"  }}
+      {{- include "common.job" . | nindent 0 }}
+    {{ else if eq .Values.controller.type "cronjob"  }}
+        {{- include "common.cronjob" . | nindent 0 }}
+    {{ else }}
+      {{- fail (printf "Not a valid controller.type/not supported (%s)" .Values.controller.type) }}
+    {{- end -}}
+  {{- end -}}
+  {{- include "base.networkSpec" . | nindent 0 }}
+  {{ include "common.serviceaccount" .  | nindent 0 }}  
+{{- if (hasKey .Values "hpa") }}
+  {{- if (.Values.hpa).enabled }}
+  {{- if eq .Values.controller.type "deployment" }}
+   {{ include "common.hpa" . | nindent 0 }}
+  {{- end }} 
+  {{- end}}
+  {{- end}}
+{{- if (hasKey .Values "pdb") }}
+  {{- if (.Values.pdb).enabled }}
+   {{ include "common.pdb" . | nindent 0 }}
+  {{- end }}
+  {{- end}} 
+{{- end -}}

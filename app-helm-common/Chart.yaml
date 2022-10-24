@@ -1,0 +1,13 @@
+apiVersion: v2
+name: "app-helm-common"
+description: "Common helm chart containing variables for different controller types"
+type: library
+version: 1.0.0
+appVersion: 1.0.0
+home: https://
+kubeVersion: '>=1.11.0-0'
+keywords:
+- common
+- ci
+maintainers:
+- name: App_team

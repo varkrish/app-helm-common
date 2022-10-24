@@ -1,0 +1,424 @@
+{
+  "title": "\uD83E\uDDA9 Helm chart for microservices \uD83E\uDDA9",
+  "description": "Common helm chart for all OCP microservices",
+  "type": "object",
+  "required": [],
+  "properties": {
+    "nameOverride" : { "type": "string"},
+    "fullnameOverride": { "type": "string" },
+    "securityContext": {
+      "type": "object",
+      "properties": {
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "drop": {
+              "type": "array",
+              "examples": ["- ALL"]
+            }
+          },
+          "readOnlyRootFilesystem": { "type": "boolean" },
+          "runAsNonRoot": { "type": "boolean" },
+          "runAsUser": { "type": "integer" }
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "properties": {
+        "limits": {
+          "type": "object",
+          "properties": {
+            "cpu": { 
+              "type": "string",
+              "examples": [ "100m" ]
+            },
+            "memory": { 
+              "type": "string",
+              "examples": [ "100Mi" ]
+            }
+          }
+        },
+        "requests": {
+          "type": "object",
+          "properties": {
+            "cpu": { 
+              "type": "string",
+              "examples": [ "100m" ]
+            },
+            "memory": { 
+              "type": "string",
+              "examples": [ "100Mi" ]
+            }
+          }
+        }
+      }
+    },
+    "controller": {
+      "type": "object",
+      "title": "Controller",
+      "required": [],
+      "properties": {
+        "enabled":{
+          "type": "boolean"
+        },
+      	"type": {
+          "type": "string",
+          "enum":[ "deployment", "deploymentConfig", "daemonset", "statefulset", "job", "cronjob", "argo-bluegreen", "argo-canary", "deployment-bluegreen", "deployment-canary"]
+        }
+      }
+    },
+    "route": {
+      "type": "object",
+      "properties": {
+        "enabled": { 
+          "type": "boolean",
+          "default": true 
+        },
+        "hostname": { "type": "string" }
+      }
+    },
+    "deploymentConfig": {
+      "type": "boolean",
+      "title": "Use a DeploymentConfig. Kubernetes Deployment is the default.",
+      "default": false
+    },
+    "replicas":{
+      "type": "object",
+      "required": [],
+      "properties": {
+        "min": { "type": "integer" },
+        "max": { "type": "integer" }
+      }
+     }, 
+    "image": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "title": "Image Repository",
+          "default": "image-registry.openshift-image-registry.svc:5000",
+          "examples": [
+            "quay.io",
+            "image-registry.openshift-image-registry.svc:5000"
+          ],
+          "minLength": 3
+        },
+        "tag": {
+          "type": "string",
+          "title": "Image Version",
+          "default": "latest",
+          "minLength": 3
+        },
+        "name": {
+          "type": "string",
+          "title": "Image Name",
+          "default": "",
+          "minLength": 3
+        },
+        "namespace": {
+          "type": "string",
+          "title": "Image Namespace",
+          "default": "labs-ci-cd",
+          "examples": [
+            "labs-dev",
+            "labs-test",
+            "labs-staging"
+          ],
+          "minLength": 3
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "secret": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" }
+          }
+        }
+      }
+    },
+    "is": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" }
+      }
+    },
+    "istag": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" }
+      }
+    },
+    "prometheus":{
+      "type": "object",
+      "properties": {
+        "interval": { "type": "string", "examples": [ "10s" ] } ,
+        "scrape": { "type": "boolean" },
+        "path": { "type": "string", "examples": [ "/actuator/prometheus" ]} ,
+        "port": { "type": "integer", "examples": [ 8080 ] },
+        "portname": { "type": "string", "examples": [ "tcp-8080" ] },
+        "scheme": { "type": "string", "examples": [ "http" ] }
+      }
+    },
+    "env": { "type": "array" },
+    "probes": {
+      "type": "object",
+      "properties": {
+        "liveness": { 
+          "type": "object",
+          "properties": {
+            "path": { 
+              "type": "string",
+              "examples": [ "/actuator/prometheus" ]
+            },
+            "port": { 
+              "type": "integer",
+              "examples": [ 8080 ]
+            },
+            "scheme": { 
+              "type": "string",
+              "examples": [ "HTTP" ]
+            },
+            "timeoutSeconds": { "type": "integer" },
+            "periodSeconds":  { "type": "integer" },
+            "successThreshold":  { "type": "integer" },
+            "failureThreshold":  { "type": "integer" }
+          }
+        },
+        "readiness": { 
+          "type": "object",
+          "properties": {
+            "path": { 
+              "type": "string",
+              "examples": [ "/actuator/prometheus" ]
+            },
+            "port": { 
+              "type": "integer",
+              "examples": [ 8080 ]
+            },
+            "scheme": { 
+              "type": "string",
+              "examples": [ "HTTP" ]
+            },
+            "timeoutSeconds": { "type": "integer" },
+            "periodSeconds":  { "type": "integer" },
+            "successThreshold":  { "type": "integer" },
+            "failureThreshold":  { "type": "integer" }
+          }
+        }
+      }
+    },
+    "statefulset": {
+      "type": "object",
+      "properties": {
+        "serviceName": { "type": "string" },
+        "replicas": { "type": "integer" }
+      }
+    },
+    "cronjob": {
+      "type": "object",
+      "properties": {
+        "schedule": { "type": "string" },
+        "concurrencyPolicy": { "type": "string" },
+        "backoffLimit": { "type": "integer" },
+        "parallelism": { "type": "integer" },
+        "restartPolicy": { "type": "string" }
+      }
+    },
+    "autoscaling": {
+      "type": "object",
+      "properties": {
+        "targetResourceName": { "type": "string" },
+        "pollingInterval": { "type": "integer" },
+        "cooldownPeriod": { "type": "integer" },
+        "minReplicaCount": { "type": "integer" },
+        "maxReplicaCount": { "type": "integer" },
+        "authenticationRef": { 
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" }
+          }
+        },
+        "serviceaccount": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" }
+          }
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "authenticationSecretTargetRef": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "parameter": { "type": "string" },
+              "name": { "type": "string" },
+              "key": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "allOf":[
+    {
+      "if": {
+        "properties": { "controller": { "properties": { "type": { "const": "argo-bluegreen" }}}}
+      },
+      "then": {
+      	"required":[],
+        "properties": {
+          "deploymentStrategy": {
+          	"type": "object",
+            "required": [],
+            "properties": {
+              "rollout": {
+              	"type": "object",
+                "required": [],
+                "properties": {
+                  "bluegreen": {
+                    "type": "object",
+                    "required":[],
+                    "properties": {
+                      "previewReplicaCount": { "type": "integer" },
+                      "autoPromotionEnabled": { "type": "boolean" },
+                      "scaleDownDelaySeconds": { "type": "integer" },
+                      "scaleDownDelayRevisionLimit": { "type": "integer" },
+                      "abortScaleDownDelaySeconds": { "type": "integer" },
+                      "previewRoute": {
+                        "type": "object",
+                        "required": [],
+                        "properties": {
+                          "enabled": { "type": "boolean" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "controller": { "properties": { "type": { "const": "argo-canary" }}}}
+      },
+      "then": {
+      	"required":[],
+        "properties": {
+          "deploymentStrategy": {
+          	"type": "object",
+            "required": [],
+            "properties": {
+              "rollout": {
+              	"type": "object",
+                "required": [ "canary" ],
+                "properties": {
+                  "canary": {
+                    "type": "object",
+                    "required":[],
+                    "properties": {
+                      "maxUnavailable": { "type": "integer" },
+                      "previewWeight": { "type": "integer" },
+                      "scaleDownDelaySeconds": { "type": "integer" },
+                      "scaleDownDelayRevisionLimit": { "type": "integer" },
+                      "abortScaleDownDelaySeconds": { "type": "integer" },
+                      "istio" :{
+                        "type":"object",
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "trafficSplit": {
+                            "type": "string",
+                            "enum":[ "host", "subset" ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }    
+    },
+    {
+      "if": {
+        "properties": { "controller": { "properties": { "type": { "const": "deployment-bluegreen" }}}}
+      },
+      "then":{
+        "required": [],
+        "properties": {
+          "deploymentStrategy":{
+            "type": "object",
+            "required": [],
+            "properties":{
+              "pipeline": {
+                "type": "object",
+                "required": [],
+                "properties": {
+                  "routename": { "type": "string" },
+                  "bluegreen": {
+                   	"type": "object",
+                    "required": [],
+                    "properties": {
+                      "previewRoute": {
+                        "type": "object",
+                        "required": [],
+                        "properties": {
+                          "enabled": { "type": "boolean" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }   
+    },
+    {
+      "if": {
+        "properties": { "controller": { "properties": { "type": { "const": "deployment-canary" }}}}
+      },
+      "then":{
+        "required": [],
+        "properties": {
+         "deploymentStrategy": {
+          "type": "object",
+          "required": [],
+          "properties": {
+            "pipeline": { 
+              "type": "object",
+              "required": [],
+              "properties": {
+                "routename": { "type": "string" },
+                "canary": { 
+                  "type": "object",
+                  "required": [],
+                  "properties": {
+                    "previewWeight": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+         }
+        }
+      } 
+    }
+  ]
+}
